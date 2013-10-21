@@ -1,0 +1,4 @@
+tests:
+  - name: Basic string
+    template: hello world!
+    expected: hello world!

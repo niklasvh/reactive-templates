@@ -1,0 +1,3 @@
+[submodule "lib/html5-parser"]
+	path = lib/html5-parser
+	url = git@github.com:niklasvh/html5-parser.git
