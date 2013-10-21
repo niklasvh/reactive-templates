@@ -10,7 +10,19 @@ function Compile(template) {
   }
 
   function renderNode(node) {
+
     switch(node.nodeType) {
+      case 1:
+        if (node.childNodes.length) {
+          return [
+            "stack.push(append(document.createElement(" + JSON.stringify(node._tagName) + ")));",
+            node.childNodes.map(renderNode).join(""),
+            "stack.pop();"
+          ].join("\n");
+        } else {
+          return "append(document.createElement(" + JSON.stringify(node._tagName) + "));";
+        }
+        break;
       case 3:
         return "append(document.createTextNode(" + JSON.stringify(node.data) + "));";
       default:
@@ -36,7 +48,7 @@ function Compile(template) {
     var document = options.document || document,
       fragment = document.createDocumentFragment(), stack = [fragment],
       append = function(node) {
-        stack[stack.length - 1].appendChild(node);
+        return stack[stack.length - 1].appendChild(node);
       };
 
   };

@@ -2,3 +2,15 @@ tests:
   - name: Basic string
     template: hello world!
     expected: hello world!
+
+  - name: Basic element
+    template: hello <b>world</b>!
+    expected: hello <b>world</b>!
+
+  - name: Basic nested element
+    template: Some <div> nesting with <b>ele<u>men</u>ts</b></div>!
+    expected: Some <div> nesting with <b>ele<u>men</u>ts</b></div>!
+
+  - name: Unclosed element names
+    template: Some <div> nesting with <b>ele<u>men!
+    expected: Some <div> nesting with <b>ele<u>men!</u></b></div>

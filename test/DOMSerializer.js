@@ -14,6 +14,7 @@ Node.prototype.appendChild = function(node) {
   } else {
     this.childNodes.push(node);
   }
+  return node;
 };
 
 Object.defineProperty(Node.prototype, "firstChild", {
@@ -28,19 +29,17 @@ Node.prototype.DOCUMENT_FRAGMENT_NODE = 11;
 
 Node.prototype.toString = function() {
   var walk = function(nodes) {
-    var html = "";
-    nodes.forEach((function(node) {
+    return nodes.map((function(node) {
       if (node.nodeType === node.TEXT_NODE) {
-        html += String(node.textContent);
+        return String(node.textContent);
       } else if (node.nodeType === node.ELEMENT_NODE) {
-        html += String(node.innerHTML);
+        return "<" + node.tagName + ">" + String(node) + "</" + node.tagName + ">";
       } else if (node.nodeType === node.DOCUMENT_FRAGMENT_NODE) {
-        html += walk(node.childNodes);
+        return walk(node.childNodes);
       } else {
         console.log("Unknown nodeType", node.nodeType);
       }
-    }));
-    return html;
+    })).join("");
   };
 
   return walk(this.childNodes);
