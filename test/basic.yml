@@ -14,3 +14,15 @@ tests:
   - name: Unclosed element names
     template: Some <div> nesting with <b>ele<u>men!
     expected: Some <div> nesting with <b>ele<u>men!</u></b></div>
+
+  - name: Element attributes (1)
+    template: Element <div class=test>with attribute</div>
+    expected: Element <div class="test">with attribute</div>
+
+  - name: Element attributes (2)
+    template: Element <div class='test'>with attribute</div>
+    expected: Element <div class="test">with attribute</div>
+
+  - name: Element attributes (3)
+    template: Element <div class="test">with attribute</div>
+    expected: Element <div class="test">with attribute</div>

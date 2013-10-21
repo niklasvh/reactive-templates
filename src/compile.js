@@ -9,18 +9,25 @@ function Compile(template) {
     return str.trim();
   }
 
+  function renderAttribute(attributes) {
+    return function(attributeName) {
+      return "tmp.setAttribute(" + JSON.stringify(attributeName) + "," + JSON.stringify(attributes[attributeName]) + ");";
+    };
+  }
+
   function renderNode(node) {
 
     switch(node.nodeType) {
       case 1:
         if (node.childNodes.length) {
           return [
-            "stack.push(append(document.createElement(" + JSON.stringify(node._tagName) + ")));",
+            "stack.push(" + (Object.keys(node.attributes).length ? "tmp = " : "") + "append(document.createElement(" + JSON.stringify(node._tagName) + ")));",
+            (Object.keys(node.attributes).length ? Object.keys(node.attributes).map(renderAttribute(node.attributes)).join("\n") : ""),
             node.childNodes.map(renderNode).join(""),
             "stack.pop();"
           ].join("\n");
         } else {
-          return "append(document.createElement(" + JSON.stringify(node._tagName) + "));";
+          return (Object.keys(node.attributes).length ? "tmp = " : "") + "append(document.createElement(" + JSON.stringify(node._tagName) + "));";
         }
         break;
       case 3:
@@ -47,6 +54,7 @@ function Compile(template) {
     options = options || {};
     var document = options.document || document,
       fragment = document.createDocumentFragment(), stack = [fragment],
+      tmp,
       append = function(node) {
         return stack[stack.length - 1].appendChild(node);
       };
@@ -55,7 +63,7 @@ function Compile(template) {
 
   var functionBody = [extractFunctionBody(functionStart)].concat(parser.constructor.childNodes.map(renderNode));
   functionBody.push("return fragment");
-  return new Function(extractFunctionArguments(functionStart), functionBody.join(""));
+  return new Function(extractFunctionArguments(functionStart), functionBody.join("\n"));
 }
 
 

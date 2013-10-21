@@ -17,11 +17,21 @@ Node.prototype.appendChild = function(node) {
   return node;
 };
 
+Node.prototype.setAttribute = function(name, value) {
+  this.attributes[name] = value;
+};
+
 Object.defineProperty(Node.prototype, "firstChild", {
   get: function() {
     return this.innerHTML ? this : false;
   }
 });
+
+function renderAttribute(attributes) {
+  return function(name) {
+    return name + '="' + attributes[name] + '"';
+  };
+}
 
 Node.prototype.ELEMENT_NODE = 1;
 Node.prototype.TEXT_NODE = 3;
@@ -33,7 +43,7 @@ Node.prototype.toString = function() {
       if (node.nodeType === node.TEXT_NODE) {
         return String(node.textContent);
       } else if (node.nodeType === node.ELEMENT_NODE) {
-        return "<" + node.tagName + ">" + String(node) + "</" + node.tagName + ">";
+        return "<" + node.tagName + (Object.keys(node.attributes).length ? " " + Object.keys(node.attributes).map(renderAttribute(node.attributes)) : "") + ">" + String(node) + "</" + node.tagName + ">";
       } else if (node.nodeType === node.DOCUMENT_FRAGMENT_NODE) {
         return walk(node.childNodes);
       } else {
@@ -54,6 +64,7 @@ DOMSerializer.prototype.createTextNode = function(text) {
 DOMSerializer.prototype.createElement = function(name) {
   var node = new Node(Node.prototype.ELEMENT_NODE);
   node.tagName = name;
+  node.attributes = {};
   return node;
 };
 
