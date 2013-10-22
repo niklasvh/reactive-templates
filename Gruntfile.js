@@ -13,10 +13,23 @@ module.exports = function (grunt) {
     nodeunit: {
       all: ['test/nodeunit.js']
     },
+    hub: {
+      all: {
+        src: ['lib/html5-parser/Gruntfile.js'],
+        tasks: ['jshint', 'nodeunit']
+      }
+    },
     watch: {
       sources: {
         files: ['src/*.js'],
         tasks: ['nodeunit'],
+        options: {
+          interrupt: true
+        }
+      },
+      tokenizer: {
+        files: ['lib//html5-parser/**/*.js'],
+        tasks: ['hub', 'nodeunit'],
         options: {
           interrupt: true
         }
@@ -31,8 +44,9 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-hub');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['nodeunit']);
+  grunt.registerTask('default', ['hub', 'nodeunit']);
 };
