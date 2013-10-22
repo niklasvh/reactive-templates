@@ -6,7 +6,8 @@
   "scripts": {
     "test": "grunt"
   },
-  "author": "",
+  "repository": "git://github.com/niklasvh/alive.js.git",
+  "author": "Niklas von Hertzen",
   "license": "MIT",
   "devDependencies": {
     "grunt": "~0.4.1",
