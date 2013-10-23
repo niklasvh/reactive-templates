@@ -1,4 +1,4 @@
-var Parser = require("../lib/html5-parser/lib/tokenizer.js").Parser;
+var Parser = require("../lib/html5-parser/lib/main.js").Parser;
 
 function Compile(template) {
   var functionRegExp = /^function\s?\((.*)\)\s?\{(\s*)([\s\S]*)\}$/;
@@ -32,6 +32,8 @@ function Compile(template) {
         break;
       case 3:
         return "append(document.createTextNode(" + JSON.stringify(node.data) + "));";
+      case -1:
+        return "append(document.createTextNode(text('" + node.name + "', data)));";
       default:
         return "";
     }
@@ -51,10 +53,18 @@ function Compile(template) {
 
 
   var functionStart = function(data, options) {
+    data = typeof(data) !== "object" ? {} : data;
     options = options || {};
     var document = options.document || document,
       fragment = document.createDocumentFragment(), stack = [fragment],
       tmp,
+      text = function(name, data) {
+        var variable = data[name];
+        return variable ? String(variable) : "";
+      },
+      resolve = function(name, data) {
+
+      },
       append = function(node) {
         return stack[stack.length - 1].appendChild(node);
       };

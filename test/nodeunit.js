@@ -13,7 +13,7 @@ tests.forEach(function(filename) {
     testData.tests.forEach(function(testCase) {
       var compiledTemplate = Compile(testCase.template);
       var options = {document:  new DOMSerializer()};
-      test.equal(compiledTemplate({}, options).toString(), testCase.expected, testCase.name);
+      test.equal(compiledTemplate(testCase.data || {}, options).toString(), testCase.expected, testCase.name);
     });
     test.done();
   };

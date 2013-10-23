@@ -29,7 +29,7 @@ module.exports = function (grunt) {
       },
       tokenizer: {
         files: ['lib//html5-parser/**/*.js'],
-        tasks: ['hub', 'nodeunit'],
+        tasks: ['nodeunit', 'hub'],
         options: {
           interrupt: true
         }

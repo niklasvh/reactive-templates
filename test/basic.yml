@@ -26,3 +26,17 @@ tests:
   - name: Element attributes (3)
     template: Element <div class="test">with attribute</div>
     expected: Element <div class="test">with attribute</div>
+
+  - name: Basic text with broken variable (1)
+    template: hello {variable!
+    expected: hello {variable!
+
+  - name: Basic variable without data
+    template: hello {{variable}}!
+    expected: hello !
+
+  - name: Basic variable
+    data:
+      variable: world
+    template: hello {{variable}}!
+    expected: hello world!
