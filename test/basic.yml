@@ -40,3 +40,51 @@ tests:
       variable: world
     template: hello {{variable}}!
     expected: hello world!
+
+  - name: Basic variable in an element
+    data:
+      variable: world
+    template: Hello <span>{{variable}}</span>!
+    expected: Hello <span>world</span>!
+
+  - name: Basic block
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: {{#list}}{{name}}{{/list}}.'
+    expected: 'List: 123.'
+
+  - name: Invalid block nesting (1)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: {{#list}}<div>{{/list}}</div>.'
+    throws: 'Currently open node isnt a block, attempting to close #list'
+
+  - name: Invalid block nesting (2)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: {{#list}}<div>{{/list}}.'
+    throws: 'Currently open node isnt a block, attempting to close #list'
+
+  - name: Invalid block nesting (3)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: <div>{{#list}}</div>{{/list}}.'
+    throws: 'Currently open node isnt a block, attempting to close #list'
+
+  - name: Valid block nesting (1)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: <br>{{#list}}{{name}}</br>{{/list}}.'
+    expected: 'List: <br>1<br>2<br>3<br>.'
+
+  - name: Valid block nesting (2)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: {{#list}}{{name}}<br>{{/list}}.'
+    expected: 'List: 1<br>2<br>3<br>.'
+
+  - name: Valid block nesting (3)
+    data:
+      list: [{ name: 1 }, { name: 2}, { name: 3}]
+    template: 'List: {{#list}}{{name}}</br>{{/list}}.'
+    expected: 'List: 1<br>2<br>3<br>.'

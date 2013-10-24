@@ -37,13 +37,15 @@ Node.prototype.ELEMENT_NODE = 1;
 Node.prototype.TEXT_NODE = 3;
 Node.prototype.DOCUMENT_FRAGMENT_NODE = 11;
 
+var selfClosing = ["br", "input"];
+
 Node.prototype.toString = function() {
   var walk = function(nodes) {
     return nodes.map((function(node) {
       if (node.nodeType === node.TEXT_NODE) {
         return String(node.textContent);
       } else if (node.nodeType === node.ELEMENT_NODE) {
-        return "<" + node.tagName + (Object.keys(node.attributes).length ? " " + Object.keys(node.attributes).map(renderAttribute(node.attributes)) : "") + ">" + String(node) + "</" + node.tagName + ">";
+        return "<" + node.tagName + (Object.keys(node.attributes).length ? " " + Object.keys(node.attributes).map(renderAttribute(node.attributes)) : "") + ">" + String(node) + (selfClosing.indexOf(node.tagName) === -1 ? "</" + node.tagName + ">" : "");
       } else if (node.nodeType === node.DOCUMENT_FRAGMENT_NODE) {
         return walk(node.childNodes);
       } else {

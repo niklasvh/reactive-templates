@@ -27,52 +27,31 @@ function Compile(template) {
       case 3:
         return "template.a(document.createTextNode(" + JSON.stringify(node.data) + "), stack);";
       case -1:
-        return "template.a(document.createTextNode(template.t('" + node.name + "', data, context)), stack);";
+        return "template.a(document.createTextNode(template.t('" + node.name + "', context)), stack);";
       case -2:
         return [
-          "template.b(" + JSON.stringify(node._tagName) + ", context)",
+          "template.b(" + JSON.stringify(node._tagName) + ", context, function(context) {",
           node.childNodes.map(renderNode).join(""),
-          "context.pop();"
+          "});"
         ].join("\n");
       default:
         return "";
     }
   }
 
-  var functionBody = parser.constructor.childNodes.map(renderNode);
-  functionBody.push("return fragment");
-  return new Function("template", "data", "options", "document", "fragment", "stack", "context", functionBody.join("\n"));
+  return new Function("template", "document", "stack", "context", "tmp", "index", parser.constructor.childNodes.map(renderNode).join("\n"));
 }
 
-function AliveTemplate(template) {
-  this.template = template;
+function Context(data, context) {
+  this.data = data;
+  this.context = context.slice(0);
+  this.index = null;
 }
 
-AliveTemplate.prototype.render = function(data, options) {
-  data = typeof(data) !== "object" ? {} : data;
-  options = options || {};
-  var document = options.document || document;
-  var fragment = document.createDocumentFragment();
-  return this.template(this, data, options, document, fragment, [fragment], []);
-};
-
-// append node to top-most node in stack
-AliveTemplate.prototype.a = function(node, stack) {
-  return stack[stack.length - 1].appendChild(node);
-};
-
-AliveTemplate.prototype.b = function(name, context) {
-  context.push(name);
-};
-
-AliveTemplate.prototype.t = function(name, data, context) {
-  var variable = this.lookup(data, context, name).value;
-  return variable ? String(variable) : "";
-};
-
-AliveTemplate.prototype.lookup = function(data, context, name, index) {
-  var contextLookup = data,
-    match = (name !== ".") ? data[name] : data,
+Context.prototype.lookup = function(name) {
+  var context = this.context;
+  var contextLookup = this.data,
+    match = (name !== ".") ? this.data[name] : this.data,
     split = name.split("."),
     dottedName = split.length > 1,
     stack = [],
@@ -91,16 +70,16 @@ AliveTemplate.prototype.lookup = function(data, context, name, index) {
         match = contextLookup[name];
         matchStack.push(context[i]);
       }
-    } else if (data[context[i]] !== undefined && data[context[i]][name] && name !== "." && !dottedName) {
-      contextLookup = data[context[i]];
-      stack.push(data[context[i]]);
-      matchStack.push(data[context[i]]);
+    } else if (this.data[context[i]] !== undefined && this.data[context[i]][name] && name !== "." && !dottedName) {
+      contextLookup = this.data[context[i]];
+      stack.push(this.data[context[i]]);
+      matchStack.push(this.data[context[i]]);
       match = contextLookup[name];
     }
   }
 
-  if (index !== undefined) {
-    contextLookup = contextLookup[index];
+  if (this.index !== null) {
+    contextLookup = contextLookup[this.index];
   }
 
   if (name !== "." && contextLookup) {
@@ -120,6 +99,43 @@ AliveTemplate.prototype.lookup = function(data, context, name, index) {
     value: contextLookup,
     context: stack
   };
+};
+
+function AliveTemplate(template) {
+  this.template = template;
+}
+
+AliveTemplate.prototype.render = function(data, options) {
+  data = typeof(data) !== "object" ? {} : data;
+  options = options || {};
+  var document = options.document || document;
+  var fragment = document.createDocumentFragment();
+  this.template(this, document, [fragment], new Context(data, []));
+  return fragment;
+};
+
+// append node to top-most node in stack
+AliveTemplate.prototype.a = function(node, stack) {
+  return stack[stack.length - 1].appendChild(node);
+};
+
+AliveTemplate.prototype.b = function(name, parentContext, callback) {
+  var item = parentContext.lookup(name), self = this;
+  var blockContext = new Context(parentContext.data, parentContext.context);
+  blockContext.context.push(name);
+  if (Array.isArray(item.value)) {
+    item.value.forEach(function(value, index) {
+      blockContext.index = index;
+      callback.call(self, blockContext);
+    });
+  } else {
+    callback.call(this, blockContext);
+  }
+};
+
+AliveTemplate.prototype.t = function(name, context) {
+  var variable = context.lookup(name).value;
+  return variable ? String(variable) : "";
 };
 
 exports.AliveTemplate = AliveTemplate;
