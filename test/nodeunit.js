@@ -5,7 +5,7 @@ var yaml = require("js-yaml"),
     DOMSerializer = require("./DOMSerializer.js").DOMSerializer;
 
 var testPath = "test/";
-var tests = ['basic.yml', 'interpolation.yml'];
+var tests = ['basic.yml', 'interpolation.yml', 'conditional.yml'];
 
 tests.forEach(function(filename) {
   exports[filename] = function(test) {

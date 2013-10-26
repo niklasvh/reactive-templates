@@ -1,7 +1,12 @@
 var Parser = require("../lib/html5-parser/lib/main.js").Parser;
 
 function Compile(template) {
-  var parser = new Parser(template, {type: "tree", fragment: "body"});
+  var parser = new Parser(template, {type: "tree", fragment: "body"}),
+    ELEMENT_NODE = 1,
+    TEXT_NODE = 3,
+    VARIABLE = -1,
+    BLOCK = -2,
+    WITH_BLOCK = -3;
   parser.run();
 
   function renderAttribute(attributes) {
@@ -12,7 +17,7 @@ function Compile(template) {
 
   function renderNode(node) {
     switch(node.nodeType) {
-      case 1:
+      case ELEMENT_NODE:
         if (node.childNodes.length) {
           return [
             "stack.push(" + (Object.keys(node.attributes).length ? "tmp = " : "") + "template.a(document.createElement(" + JSON.stringify(node._tagName) + "), stack));",
@@ -24,13 +29,19 @@ function Compile(template) {
           return (Object.keys(node.attributes).length ? "tmp = " : "") + "template.a(document.createElement(" + JSON.stringify(node._tagName) + "), stack);";
         }
         break;
-      case 3:
+      case TEXT_NODE:
         return "template.a(document.createTextNode(" + JSON.stringify(node.data) + "), stack);";
-      case -1:
+      case VARIABLE:
         return "template.a(document.createTextNode(template.t('" + node.name + "', context)), stack);";
-      case -2:
+      case BLOCK:
         return [
           "template.b(" + JSON.stringify(node._tagName) + ", context, function(context) {",
+          node.childNodes.map(renderNode).join(""),
+          "});"
+        ].join("\n");
+      case WITH_BLOCK:
+        return [
+          "template.w(" + JSON.stringify(node._tagName) + ", " + JSON.stringify(node.variable) + ", context, function(context) {",
           node.childNodes.map(renderNode).join(""),
           "});"
         ].join("\n");
@@ -121,7 +132,7 @@ AliveTemplate.prototype.a = function(node, stack) {
 
 AliveTemplate.prototype.b = function(name, parentContext, callback) {
   var item = parentContext.lookup(name), self = this;
-  var blockContext = new Context(parentContext.data, parentContext.context);
+  var blockContext = new Context(item.value, parentContext.context);
   blockContext.context.push(name);
   if (Array.isArray(item.value)) {
     item.value.forEach(function(value, index) {
@@ -136,6 +147,20 @@ AliveTemplate.prototype.b = function(name, parentContext, callback) {
 AliveTemplate.prototype.t = function(name, context) {
   var variable = context.lookup(name).value;
   return variable ? String(variable) : "";
+};
+
+AliveTemplate.prototype.w = function(type, name, parentContext, callback) {
+  return this[type](name, parentContext, callback);
+};
+
+AliveTemplate.prototype.if = function(name, parentContext, callback) {
+  if (!this.falsy(parentContext.lookup(name).value)) {
+    callback.call(this, parentContext);
+  }
+};
+
+AliveTemplate.prototype.falsy = function(variable) {
+  return (variable === false || typeof(variable) === "undefined" || variable === null || variable === "" || (Array.isArray(variable) && variable.length === 0));
 };
 
 exports.AliveTemplate = AliveTemplate;

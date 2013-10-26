@@ -88,3 +88,15 @@ tests:
       list: [{ name: 1 }, { name: 2}, { name: 3}]
     template: 'List: {{#list}}{{name}}</br>{{/list}}.'
     expected: 'List: 1<br>2<br>3<br>.'
+
+  - name: Dot variables
+    data:
+      list: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    template: 'List {{#list}}{{.}}{{/list}}.'
+    expected: 'List 123456789.'
+
+  - name: Variable interpolation
+    data:
+      list: [{a: [1, 2, 3]}, {a: [4, 5, 6]}, {a: [7, 8, 9]}]
+    template: 'List {{#list}}{{#a}}{{.}}{{/a}}{{/list}}.'
+    expected: 'List 123456789.'

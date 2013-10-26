@@ -1,0 +1,66 @@
+tests:
+  - name: Basic true-if conditional (boolean)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: true
+    expected: hello world!
+
+  - name: Basic true-if conditional (string)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: hello
+    expected: hello world!
+
+  - name: Basic true-if conditional (array)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: [1]
+    expected: hello world!
+
+  - name: Basic true-if conditional ("null" string)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: "null"
+    expected: hello world!
+
+  - name: Basic true-if conditional ("undefined" string)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: "undefined"
+    expected: hello world!
+
+  - name: Basic true-if conditional (0 number)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: 0
+    expected: hello world!
+
+  - name: Basic false-if conditional (false)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: false
+    expected: hello !
+
+  - name: Basic false-if conditional (undefined)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      wrong_variable: true
+    expected: hello !
+
+  - name: Basic false-if conditional (null)
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: null
+    expected: hello !
+
+  - name: Basic false-if conditional ("")
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: ""
+    expected: hello !
+
+  - name: Basic false-if conditional ([])
+    template: hello {{#if variable}}world{{/if}}!
+    data:
+      variable: []
+    expected: hello !
