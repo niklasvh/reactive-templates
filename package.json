@@ -1,12 +1,12 @@
 {
-  "name": "alive.js",
+  "name": "Reactive Templates",
   "version": "0.1.0",
   "description": "",
   "main": "lib/compile.js",
   "scripts": {
     "test": "grunt"
   },
-  "repository": "git://github.com/niklasvh/alive.js.git",
+  "repository": "git://github.com/niklasvh/reactive-templates.git",
   "author": "Niklas von Hertzen",
   "license": "MIT",
   "devDependencies": {

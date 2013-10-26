@@ -112,11 +112,11 @@ Context.prototype.lookup = function(name) {
   };
 };
 
-function AliveTemplate(template) {
+function ReactiveTemplate(template) {
   this.template = template;
 }
 
-AliveTemplate.prototype.render = function(data, options) {
+ReactiveTemplate.prototype.render = function(data, options) {
   data = typeof(data) !== "object" ? {} : data;
   options = options || {};
   var document = options.document || document;
@@ -126,11 +126,11 @@ AliveTemplate.prototype.render = function(data, options) {
 };
 
 // append node to top-most node in stack
-AliveTemplate.prototype.a = function(node, stack) {
+ReactiveTemplate.prototype.a = function(node, stack) {
   return stack[stack.length - 1].appendChild(node);
 };
 
-AliveTemplate.prototype.b = function(name, parentContext, callback) {
+ReactiveTemplate.prototype.b = function(name, parentContext, callback) {
   var item = parentContext.lookup(name), self = this;
   var blockContext = new Context(item.value, parentContext.context);
   blockContext.context.push(name);
@@ -144,24 +144,24 @@ AliveTemplate.prototype.b = function(name, parentContext, callback) {
   }
 };
 
-AliveTemplate.prototype.t = function(name, context) {
+ReactiveTemplate.prototype.t = function(name, context) {
   var variable = context.lookup(name).value;
-  return variable ? String(variable) : "";
+  return variable ? String(variable) : ""; 
 };
 
-AliveTemplate.prototype.w = function(type, name, parentContext, callback) {
+ReactiveTemplate.prototype.w = function(type, name, parentContext, callback) {
   return this[type](name, parentContext, callback);
 };
 
-AliveTemplate.prototype.if = function(name, parentContext, callback) {
+ReactiveTemplate.prototype.if = function(name, parentContext, callback) {
   if (!this.falsy(parentContext.lookup(name).value)) {
     callback.call(this, parentContext);
   }
 };
 
-AliveTemplate.prototype.falsy = function(variable) {
+ReactiveTemplate.prototype.falsy = function(variable) {
   return (variable === false || typeof(variable) === "undefined" || variable === null || variable === "" || (Array.isArray(variable) && variable.length === 0));
 };
 
-exports.AliveTemplate = AliveTemplate;
+exports.ReactiveTemplate = ReactiveTemplate;
 exports.Compile = Compile;
