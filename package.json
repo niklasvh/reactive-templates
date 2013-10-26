@@ -1,5 +1,5 @@
 {
-  "name": "Reactive Templates",
+  "name": "reactive-templates",
   "version": "0.1.0",
   "description": "",
   "main": "lib/compile.js",
